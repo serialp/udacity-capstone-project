@@ -1,0 +1,74 @@
+Description:
+   Capstone Project / Cheick GUITI @Udacity
+
+Parameters:
+
+  EnvironmentName:
+      Description: An environment name that will be prefixed to resource names
+      Type: String
+
+MyAuthorizedIP:
+  Description: Ip address to allow SSH access to the Jump box
+  Type:
+  Default: 81.249.230.253/32
+  
+JenkinsSSHKeyPair:
+  Description: KeyName to access jenkins host
+  Type: "AWS::EC2::KeyPair::KeyName"
+
+Mappings:
+  Region:
+    us-west-2:
+      HVM64: ami-0fc20dd1da406780b
+
+Resources:
+
+  JenkinsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+        GroupDescription: Allow http to client host
+        VpcId:
+          Ref: myVPC
+        SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Sub ${MyAuthorizedIP}
+      #Tags:
+        #- Key: Name
+          #Value:
+      
+  JenkinsEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo apt-get update -y
+          sudo apt-get install default-jdk wget -y
+          cd /home/ubuntu
+          wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+          sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+          sudo apt-get update -y
+          sudo apt-get install jenkins tidy -y
+          sudo systemctl status jenkins
+        SecurityGroups:
+          - Ref: JenkinsSecurityGroup
+        SubnetId:
+        Fn::ImportValue: !Sub "${EnvironmentName}-SUBNET1"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: "10"
+            DeleteOnTermination: true
+            VolumeType: "gp2"
+      ImageId: !FindInMap [Region, !Ref "AWS::Region", HVM64]
+      InstanceType: t3.small
+      KeyName: !Sub ${JenkinsSSHKeyPair}
+        
+
+        
