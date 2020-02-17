@@ -70,5 +70,27 @@ Resources:
       InstanceType: t3.small
       KeyName: !Sub ${JenkinsSSHKeyPair}
         
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain:
+        Fn::ImportValue: !Sub "${EnvironmentName}-VPCID"
 
+  EIPAssociation0:
+    Type: AWS::EC2::EIPAssociation
+    DependsOn:
+      - JenkinsEC2Instance
+      - EIP
+    Properties:
+      InstanceId:
+        Ref: JenkinsEC2Instance
+      AllocationId:
+        Fn::GetAtt:
+          - EIP
+          - AllocationId
+
+Outputs:
+  Website:
+    Description: The Public DNS for the EC2 Instance
+    Value: !Join ['', ['http://', !GetAtt 'JenkinsEC2Instance.PublicDnsName', ':8080']]
         
