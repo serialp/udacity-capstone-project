@@ -2,22 +2,5 @@
     {
         "ParameterKey": "EnvironmentName",
         "ParameterValue": "CapstoneProject"
-    },
-    {
-        "ParameterKey": "VpcCIDR",
-        "ParameterValue": "10.0.0.0/16"
-    },
-    {
-        "ParameterKey": "Subnet1",
-        "ParameterValue": "10.0.0.0/24"
-    },
-    {
-        "ParameterKey": "Subnet2",
-        "ParameterValue": "10.0.1.0/24"
-    },
-    {
-        "ParameterKey": "Subnet3",
-        "ParameterValue": "10.0.2.0/24"
     }
-
 ]
