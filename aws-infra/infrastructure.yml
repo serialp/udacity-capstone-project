@@ -6,14 +6,29 @@ Parameters:
   EnvironmentName:
     Description: An environment name that is prefixed to resource names
     Type: String
+  
+Mappings:
+  DefaultConfig:
+    VPC:
+      CIDR: 10.0.0.0/16
+    Subnet1:
+      CIDR: 10.0.0.0/24
+    Subnet2:
+      CIDR: 10.0.1.0/24
+    Subnet3:
+      CIDR: 10.0.2.0/24
+
 
 Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref VpcCIDR
       EnableDnsSupport: true
       EnableDnsHostnames: true
+      CidrBlock: !FindInMap
+        - DefaultConfig
+        - VPC
+        - CIDR
       Tags:
         - Key: Name
           Value: !Ref EnvironmentName
@@ -31,39 +46,6 @@ Resources:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
   
-  Subnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 0, !GetAZs '' ]
-      CidrBlock: !Ref Subnet1
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
-
-  Subnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
-      CidrBlock: !Ref Subnet2
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
-  
-  Subnet3:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 2, !GetAZs  '' ]
-      CidrBlock: !Ref Subnet3
-      MapPublicIpOnLaunch: false
-      Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Public Subnet (AZ3)
-  
   RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -76,9 +58,48 @@ Resources:
     Type: AWS::EC2::Route
     DependsOn: InternetGatewayAttachment
     Properties:
-      RouteTableId: !Ref PublicRouteTable
+      RouteTableId: !Ref RouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
+
+  Subnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        AvailabilityZone: !Select [ 0, !GetAZs '' ]
+        CidrBlock: !FindInMap
+          - DefaultConfig
+          - Subnet1
+          - CIDR
+        Tags:
+          - Key: Name
+            Value: !Sub ${EnvironmentName}-Subnet-1
+
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      CidrBlock: !FindInMap
+        - DefaultConfig
+        - Subnet2
+        - CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-Subnet-2
+  
+  Subnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 2, !GetAZs  '' ]
+      CidrBlock: !FindInMap
+        - DefaultConfig
+        - Subnet3
+        - CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-Subnet-3
 
   Subnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -98,6 +119,7 @@ Resources:
       RouteTableId: !Ref RouteTable
       SubnetId: !Ref Subnet3
 
+
 Outputs:
   
   VPC: 
@@ -106,7 +128,7 @@ Outputs:
       Export:
         Name: !Sub ${EnvironmentName}-VPCID
 
-  VPCRouteTable:
+  RouteTable:
       Description: Public Routing
       Value: !Ref RouteTable
       Export:
@@ -116,19 +138,19 @@ Outputs:
       Description: Public subnets IDs
       Value: !Join [ ",", [ !Ref Subnet1, !Ref Subnet2, !Ref Subnet3 ]]
       Export:
-        Name: !Sub ${EnvironmentName}-SUBNETS
+        Name: !Sub ${EnvironmentName}-Subnets
 
   Subnet1:
       Value: !Ref Subnet1
       Export:
-        Name: !Sub ${EnvironmentName}-SUBNET1
+        Name: !Sub ${EnvironmentName}-Subnet-1
 
   Subnet2: 
       Value: !Ref Subnet2
       Export:
-        Name: !Sub ${EnvironmentName}-SUBNET2
+        Name: !Sub ${EnvironmentName}-Subnet-2
 
   Subnet3:
       Value: !Ref Subnet3
       Export:
-        Name: !Sub ${EnvironmentName}-SUBNET3
+        Name: !Sub ${EnvironmentName}-Subnet-3
