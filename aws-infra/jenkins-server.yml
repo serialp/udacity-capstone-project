@@ -56,19 +56,19 @@ Resources:
           sudo apt-get update -y
           sudo apt-get install jenkins tidy -y
           sudo systemctl status jenkins
-        SecurityGroups:
-          - Ref: JenkinsSecurityGroup
-        SubnetId:
-          Fn::ImportValue: !Sub "${EnvironmentName}-Subnet-1"
-        BlockDeviceMappings:
-          - DeviceName: "/dev/sdk"
-            Ebs:
-              VolumeSize: "10"
-              DeleteOnTermination: true
-              VolumeType: "gp2"
-        ImageId: !FindInMap [Region, !Ref "AWS::Region", HVM64]
-        InstanceType: t3.small
-        KeyName: !Sub ${JenkinsSSHKeyPair}
+      SecurityGroupsId:
+        - Ref: JenkinsSecurityGroup
+      SubnetId:
+        Fn::ImportValue: !Sub "${EnvironmentName}-Subnet-1"
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: "10"
+            DeleteOnTermination: true
+            VolumeType: "gp2"
+      ImageId: !FindInMap [Region, !Ref "AWS::Region", HVM64]
+      InstanceType: t3.small
+      KeyName: !Sub ${JenkinsSSHKeyPair}
         
   EIP:
     Type: AWS::EC2::EIP
