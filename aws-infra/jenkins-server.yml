@@ -7,14 +7,14 @@ Parameters:
       Description: An environment name that will be prefixed to resource names
       Type: String
 
-MyAuthorizedIP:
-  Description: Ip address to allow SSH access to the Jump box
-  Type:
-  Default: 81.249.230.253/32
+  MyAuthorizedIP:
+    Description: Ip address to allow SSH access to the Jump box
+    Type: String
+    Default: 81.249.230.253/32
   
-JenkinsSSHKeyPair:
-  Description: KeyName to access jenkins host
-  Type: "AWS::EC2::KeyPair::KeyName"
+  JenkinsSSHKeyPair:
+    Description: KeyName to access jenkins host
+    Type: "AWS::EC2::KeyPair::KeyName"
 
 Mappings:
   Region:
@@ -28,7 +28,7 @@ Resources:
     Properties:
         GroupDescription: Allow http to client host
         VpcId:
-          Ref: myVPC
+           Fn::ImportValue: !Sub "${EnvironmentName}-VPCID"
         SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 8080
@@ -59,16 +59,16 @@ Resources:
         SecurityGroups:
           - Ref: JenkinsSecurityGroup
         SubnetId:
-        Fn::ImportValue: !Sub "${EnvironmentName}-SUBNET1"
-      BlockDeviceMappings:
-        - DeviceName: "/dev/sdk"
-          Ebs:
-            VolumeSize: "10"
-            DeleteOnTermination: true
-            VolumeType: "gp2"
-      ImageId: !FindInMap [Region, !Ref "AWS::Region", HVM64]
-      InstanceType: t3.small
-      KeyName: !Sub ${JenkinsSSHKeyPair}
+          Fn::ImportValue: !Sub "${EnvironmentName}-Subnet-1"
+        BlockDeviceMappings:
+          - DeviceName: "/dev/sdk"
+            Ebs:
+              VolumeSize: "10"
+              DeleteOnTermination: true
+              VolumeType: "gp2"
+        ImageId: !FindInMap [Region, !Ref "AWS::Region", HVM64]
+        InstanceType: t3.small
+        KeyName: !Sub ${JenkinsSSHKeyPair}
         
   EIP:
     Type: AWS::EC2::EIP
