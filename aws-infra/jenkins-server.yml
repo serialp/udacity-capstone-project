@@ -56,7 +56,7 @@ Resources:
           sudo apt-get update -y
           sudo apt-get install jenkins tidy -y
           sudo systemctl status jenkins
-      SecurityGroupsId:
+      SecurityGroups:
         - Ref: JenkinsSecurityGroup
       SubnetId:
         Fn::ImportValue: !Sub "${EnvironmentName}-Subnet-1"
