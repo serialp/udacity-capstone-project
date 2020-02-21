@@ -27,7 +27,7 @@ pipeline{
         }
         stage ('Deploy to EKS') {
             steps {
-                sh "kubectl set image serialp/capstone-app capstone-app=serialp/capstone-app:${env.GIT_COMMIT[0..7]} --record"
+                sh "kubectl set image deployments/capstone-app capstone-app=serialp/capstone-app:${env.GIT_COMMIT[0..7]} --record"
             }
         }
     }
