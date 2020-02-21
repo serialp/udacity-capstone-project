@@ -30,7 +30,7 @@ node {
         withAWS(credentials: 'cheick', region: 'us-west-2') {
             sh "aws eks --region us-west-2 update-kubeconfig --name EKSCluster-OFEyNN5de2aT"
             sh "kubectl apply -f kubernetes-confs/aws-auth-cm.yaml"
-            sh "kubectl set image deployments/capstone-app capstone-app=${registry}:latest"
+            sh "kubectl set image deployment/capstone-app capstone-app=${registry}:latest"
             sh "kubectl apply -f kubernetes-confs/app-deployment.yaml"
             sh "kubectl get nodes"
             sh "kubectl get pods"
