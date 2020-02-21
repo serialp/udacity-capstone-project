@@ -5,9 +5,7 @@ pipeline{
         stage("Linting"){
             steps{
                 echo "Linting HTML Code"
-                sh "tidy --drop-empty-elements false --drop-empty-paras false -qe *.html"
-                echo "Linting Dockerfile"
-                sh "hadolint Dockerfile"
+                sh "tidy -qe *.html"
             }
         }
         stage("Build Docker Image"){
