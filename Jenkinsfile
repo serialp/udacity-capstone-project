@@ -18,7 +18,7 @@ pipeline{
         stage ('Push Image to Registry') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'serialp') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
                         app_image.push("${env.GIT_COMMIT[0..7]}")
                         app_image.push("latest")
                     }
