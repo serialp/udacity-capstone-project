@@ -13,7 +13,7 @@ node {
     stage("Linting") {
       echo "Linting HTML Code"
             sh "tidy -qe *.html"
-      //sh '/home/ubuntu/.local/bin/hadolint Dockerfile'
+            sh '/home/ubuntu/.local/bin/hadolint Dockerfile'
     }
     stage('Building image') {
 	    echo 'Building Docker image...'
