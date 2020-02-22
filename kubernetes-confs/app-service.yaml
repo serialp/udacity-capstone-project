@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: Capstone-Cluster-app
+  name: capstone-app
 spec:
   selector:
-    app: Capstone-Cluster-app
+    app: capstone-app
   type: LoadBalancer
   ports:
    -  protocol: TCP
